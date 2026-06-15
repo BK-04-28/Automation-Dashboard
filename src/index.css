@@ -1396,8 +1396,7 @@ a:hover { text-decoration: underline; }
   .af-topbar { padding: 0 12px; }
   .af-breadcrumb-root { display: none; }
   .af-breadcrumb-sep { display: none; }
-  .af-search { width: 130px; font-size: 12px; }
-  .af-search:focus { width: 150px; }
+  .af-topbar .af-search-wrap { display: none; }
   .af-content { padding: 12px; }
   .pg-title { font-size: 20px; }
   .dash-welcome { padding: 20px; }
