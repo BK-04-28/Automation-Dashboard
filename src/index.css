@@ -1394,8 +1394,7 @@ a:hover { text-decoration: underline; }
 
 @media (max-width: 480px) {
   .af-topbar { padding: 0 12px; }
-  .af-breadcrumb-root { display: none; }
-  .af-breadcrumb-sep { display: none; }
+  .af-breadcrumb { display: none; }
   .af-search { width: 130px; font-size: 12px; }
   .af-search:focus { width: 150px; }
   .af-content { padding: 12px; }
