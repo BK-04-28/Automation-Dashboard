@@ -49,7 +49,7 @@ export default function LogsPage({ addToast }) {
       if (statusFilter !== 'All' && e.status !== statusFilter) return false;
       return true;
     });
-  }, [search, statusFilter, dateFrom, dateTo]);
+  }, [search, statusFilter]);
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paginated  = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
