@@ -190,154 +190,118 @@ function SkeletonCard() {
 }
 
 /* ═══════════════════════════════════
-   DRAWER (SIDE PANEL)
+   AUTOMATION CARD (Main redesign)
 ═══════════════════════════════════ */
-function DrawerPanel({ auto, onClose }) {
-  if (!auto) return null;
-  const iconCfg = JOB_ICONS[auto.category] || JOB_ICONS.Default;
-  return (
-    <div className="af-drawer-overlay" onClick={onClose}>
-      <div className="af-drawer" onClick={e => e.stopPropagation()}>
-        <div className="af-drawer-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div className="jc-icon" style={{ background: iconCfg.gradient, width: 40, height: 40, borderRadius: 10, fontSize: 16 }}>
-              <i className={`bi ${iconCfg.icon}`} />
-            </div>
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>{auto.name}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{auto.category} Automation</div>
-            </div>
-          </div>
-          <button className="af-modal-close" onClick={onClose}><i className="bi bi-x-lg" /></button>
-        </div>
-        <div className="af-drawer-body">
-          <div className="af-drawer-section">
-            <h3>Description</h3>
-            <p className="af-drawer-p">{auto.description || 'No description provided.'}</p>
-          </div>
-          <div className="af-drawer-section">
-            <h3>Automation Details</h3>
-            <div className="af-drawer-grid">
-              <div className="ad-grid-item">
-                <span className="ad-label">Status</span>
-                <span className="ad-value" style={{ color: auto.status === 'Running' ? 'var(--amber)' : auto.status === 'Failed' ? 'var(--red)' : '' }}>{auto.status}</span>
-              </div>
-              <div className="ad-grid-item">
-                <span className="ad-label">Trigger</span>
-                <span className="ad-value">{auto.trigger || 'Scheduled'}</span>
-              </div>
-              <div className="ad-grid-item">
-                <span className="ad-label">Schedule</span>
-                <span className="ad-value">{auto.schedule || '—'}</span>
-              </div>
-              <div className="ad-grid-item">
-                <span className="ad-label">Owner</span>
-                <span className="ad-value">{auto.triggeredBy || 'System'}</span>
-              </div>
-              <div className="ad-grid-item">
-                <span className="ad-label">Last Run</span>
-                <span className="ad-value">{auto.lastRun || 'Never'}</span>
-              </div>
-              <div className="ad-grid-item">
-                <span className="ad-label">Next Run</span>
-                <span className="ad-value">{auto.nextRun || '—'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════
-   AUTOMATION CARD (Enterprise SaaS)
-═══════════════════════════════════ */
-function AutomationCard({ auto, onRunNow, onViewLogs, onEdit, onPause, onDelete, addToast, onViewDetails }) {
+function AutomationCard({ auto, onRunNow, onViewLogs, onEdit, onPause, onDelete, addToast }) {
+  const [expanded, setExpanded] = useState(false);
   const statusCfg = JOB_STATUS[auto.status] || JOB_STATUS.Scheduled;
   const iconCfg   = JOB_ICONS[auto.category] || JOB_ICONS.Default;
   const catStyle  = CATEGORY_COLORS[auto.category] || CATEGORY_COLORS.Default;
   const isRunning = auto.status === 'Running';
-  
-  // Status classes for outer card
-  let statusClass = 'is-scheduled';
-  if (isRunning) statusClass = 'is-running';
-  else if (auto.status === 'Completed') statusClass = 'is-completed';
-  else if (auto.status === 'Failed') statusClass = 'is-failed';
-  else if (auto.status === 'Paused') statusClass = 'is-paused';
-
-  const etaMins = auto.progress !== undefined ? Math.max(1, Math.round((100 - auto.progress) / 10)) : 1;
+  const isFailed  = auto.status === 'Failed';
+  const needsMore = auto.description && auto.description.length > 95;
 
   return (
-    <div className={`job-card ${statusClass}`}>
-      {/* Absolute Category Badge */}
-      <span className="jc-cat-badge" style={{ color: catStyle.text, borderColor: catStyle.text, background: catStyle.bg }}>
-        {auto.category}
-      </span>
+    <div className={`job-card${isRunning ? ' jc-running' : ''}${isFailed ? ' jc-failed' : ''}`}>
+      {/* Animated top bar for running jobs */}
+      {isRunning && <div className="jc-topbar" />}
 
       {/* ── HEADER ── */}
       <div className="jc-header">
+        {/* Gradient icon */}
         <div className="jc-icon" style={{ background: iconCfg.gradient }}>
           <i className={`bi ${iconCfg.icon}`} />
         </div>
+
+        {/* Title + Status */}
         <div className="jc-header-body">
-          <div className="jc-title-row">
-            <span className="jc-title" title={auto.name}>{auto.name}</span>
-            <span className={`jc-status-inline st-${auto.status.toLowerCase()}`}>
-              <span className={`st-dot ${statusCfg.pulse ? 'pulse' : ''}`} style={{ background: 'currentColor' }} />
-              {auto.status}
-            </span>
-          </div>
-          <div className="jc-desc-area">
-            <p className="jc-desc">{auto.description}</p>
-            {auto.description && (
-              <button className="jc-view-details" onClick={() => onViewDetails(auto)}>
-                View Details <i className="bi bi-arrow-right-short" />
-              </button>
-            )}
+          <div className="jc-title" title={auto.name}>{auto.name}</div>
+          <div className="jc-status-row">
+            <span className={`jc-dot ${statusCfg.cls}${statusCfg.pulse ? ' jc-pulse' : ''}`} />
+            <span className={`jc-status-text ${statusCfg.cls}`}>{auto.status}</span>
           </div>
         </div>
+
+        {/* Category badge */}
+        <span className="jc-cat-badge" style={{ background: catStyle.bg, color: catStyle.text }}>
+          {auto.category}
+        </span>
       </div>
 
-      {/* ── METRICS CHIPS ── */}
-      <div className="jc-metrics">
-        <div className="jc-metric-chip" title="Owner"><i className="bi bi-person-fill" /> {auto.triggeredBy || 'System'}</div>
-        <div className="jc-metric-chip" title="Duration"><i className="bi bi-stopwatch" /> {auto.duration && auto.duration !== '—' && auto.duration !== 'Running…' ? auto.duration : '2m 14s'}</div>
-        <div className="jc-metric-chip" title="Last Run"><i className="bi bi-clock-history" /> {auto.lastRun || 'Never'}</div>
-        <div className="jc-metric-chip" title="Next Run"><i className="bi bi-calendar2-check" /> {auto.nextRun || '—'}</div>
+      {/* ── DESCRIPTION ── */}
+      <div className="jc-desc-area">
+        <p className={`jc-desc${expanded ? ' jc-desc-open' : ''}`}>{auto.description}</p>
+        {needsMore && (
+          <button className="jc-readmore" onClick={() => setExpanded(x => !x)}>
+            {expanded ? 'Show less ↑' : 'Read more →'}
+          </button>
+        )}
       </div>
 
       {/* ── PROGRESS (Running only) ── */}
       {isRunning && auto.progress !== undefined && (
-        <div className="jc-progress-area">
-          <div className="jc-prog-top">
-            <span>{auto.progress}% Complete</span>
-            <span className="jc-prog-eta">Estimated {etaMins}m remaining</span>
-          </div>
+        <div className="jc-progress-row">
           <div className="jc-progress-track">
             <div className="jc-progress-fill" style={{ width: `${auto.progress}%` }} />
           </div>
+          <span className="jc-progress-pct">{auto.progress}%</span>
         </div>
       )}
 
+      {/* ── METADATA ── */}
+      <div className="jc-meta">
+        <div className="jc-meta-item" title="Owner">
+          <i className="bi bi-person-fill" />
+          <span>{auto.triggeredBy || 'System'}</span>
+        </div>
+        <span className="jc-meta-sep" />
+        <div className="jc-meta-item" title="Last run">
+          <i className="bi bi-clock-history" />
+          <span>{auto.lastRun || 'Never run'}</span>
+        </div>
+        <span className="jc-meta-sep" />
+        <div className="jc-meta-item" title="Next run">
+          <i className="bi bi-calendar2-check" />
+          <span>{auto.nextRun || '—'}</span>
+        </div>
+        {auto.duration && auto.duration !== '—' && auto.duration !== 'Running…' && (
+          <>
+            <span className="jc-meta-sep" />
+            <div className="jc-meta-item" title="Duration">
+              <i className="bi bi-stopwatch" />
+              <span>{auto.duration}</span>
+            </div>
+          </>
+        )}
+      </div>
+
       {/* ── ACTION BAR ── */}
       <div className="jc-actions">
+        {/* Primary: Run */}
         <button
-          className={`jc-ghost-btn jc-run-btn ${isRunning ? 'jc-run-active' : ''}`}
+          className={`jc-run-btn${isRunning ? ' jc-run-active' : ''}`}
           onClick={() => !isRunning && onRunNow(auto.id)}
           disabled={isRunning}
+          title={isRunning ? 'Currently running' : 'Run now'}
         >
-          {isRunning ? <><i className="bi bi-arrow-repeat jc-spin" /> Running…</> : <><i className="bi bi-play-fill" /> Run</>}
+          {isRunning
+            ? <><i className="bi bi-arrow-repeat jc-spin" /> Running…</>
+            : <><i className="bi bi-play-fill" /> Run</>}
         </button>
 
-        <button className="jc-ghost-btn" onClick={() => onViewLogs(auto)}>
-          <i className="bi bi-file-earmark-text" /> Logs
-        </button>
-        <button className="jc-ghost-btn" onClick={() => onEdit(auto)}>
-          <i className="bi bi-pencil" /> Edit
-        </button>
+        {/* Divider */}
+        <div className="jc-divider" />
 
-        <div style={{ marginLeft: 'auto' }}>
+        {/* Secondary ghost buttons */}
+        <div className="jc-ghost-group">
+          <button className="jc-ghost-btn" onClick={() => onViewLogs(auto)} title="View logs">
+            <i className="bi bi-terminal" />
+            <span>Logs</span>
+          </button>
+          <button className="jc-ghost-btn" onClick={() => onEdit(auto)} title="Edit automation">
+            <i className="bi bi-pencil" />
+            <span>Edit</span>
+          </button>
           <MoreMenu auto={auto} onPause={() => onPause(auto.id)} onDelete={() => onDelete(auto.id)} addToast={addToast} />
         </div>
       </div>
@@ -355,7 +319,6 @@ export default function AutomationsPage({ automations, setAutomations, addToast,
   const [logModal,     setLogModal]     = useState(null);
   const [editModal,    setEditModal]    = useState(null);
   const [newModal,     setNewModal]     = useState(false);
-  const [drawerAuto,   setDrawerAuto]   = useState(null);
   const [loading,      setLoading]      = useState(true);
 
   /* Simulate brief skeleton on first render */
@@ -501,14 +464,12 @@ export default function AutomationsPage({ automations, setAutomations, addToast,
                 onPause={handlePause}
                 onDelete={handleDelete}
                 addToast={addToast}
-                onViewDetails={a => setDrawerAuto(a)}
               />
             ))
         }
       </div>
 
-      {/* Modals & Drawers */}
-      {drawerAuto && <DrawerPanel auto={drawerAuto} onClose={() => setDrawerAuto(null)} />}
+      {/* Modals */}
       {logModal && <LogsModal auto={logModal} onClose={() => setLogModal(null)} />}
       {newModal  && <AutomationModal onClose={() => setNewModal(false)} onSave={handleSaveNew} />}
       {editModal && <AutomationModal auto={editModal} onClose={() => setEditModal(null)} onSave={handleSaveEdit} />}

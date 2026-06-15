@@ -217,7 +217,7 @@ function Topbar({ dark, setDark, searchQuery, setSearchQuery, activePage, onHamb
    APP
 ═══════════════════════ */
 export default function App() {
-  const [dark, setDark]               = useState(false);
+  const [dark, setDark]               = useState(true);
   const [activePage, setActivePage]   = useState('automations');
   const [automations, setAutomations] = useState(automationsData);
   const [toasts, setToasts]           = useState([]);
