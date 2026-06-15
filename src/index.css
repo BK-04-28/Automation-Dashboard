@@ -1392,6 +1392,27 @@ a:hover { text-decoration: underline; }
   .sett-theme-card { width: 100px; }
 }
 
+@media (max-width: 480px) {
+  .af-topbar { padding: 0 12px; }
+  .af-breadcrumb-root { display: none; }
+  .af-breadcrumb-sep { display: none; }
+  .af-search { width: 130px; font-size: 12px; }
+  .af-search:focus { width: 150px; }
+  .af-content { padding: 12px; }
+  .pg-title { font-size: 20px; }
+  .dash-welcome { padding: 20px; }
+  .dash-welcome h1 { font-size: 18px; }
+  .dash-welcome-badge { width: 100%; justify-content: center; }
+  .af-card { padding: 16px; }
+  .af-stat-card { padding: 16px; gap: 10px; }
+  .af-stat-value { font-size: 24px; }
+  .af-stat-icon { width: 36px; height: 36px; font-size: 16px; }
+  .af-notif-dropdown { width: calc(100vw - 24px); right: -40px; }
+  .af-toast-container { right: 12px; left: 12px; top: 12px; align-items: stretch; }
+  .af-toast { min-width: unset; max-width: 100%; }
+  .logs-table th, .logs-table td { padding: 10px 12px; }
+}
+
 /* ═══════════════════
    FOCUS VISIBLE
 ═══════════════════ */
